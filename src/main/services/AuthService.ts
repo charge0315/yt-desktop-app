@@ -23,11 +23,19 @@ export class AuthService {
 
   constructor() {
     this.store = new Store();
-    
+
     // These should be configured via environment or config
     const CLIENT_ID = process.env.GOOGLE_CLIENT_ID || 'YOUR_CLIENT_ID';
     const CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET || 'YOUR_CLIENT_SECRET';
     const REDIRECT_URI = 'http://localhost:3000/oauth2callback';
+
+    // Debug logging (remove in production)
+    console.log('=== OAuth Configuration Debug ===');
+    console.log('CLIENT_ID loaded:', CLIENT_ID ? `${CLIENT_ID.substring(0, 20)}...${CLIENT_ID.substring(CLIENT_ID.length - 10)}` : 'NOT SET');
+    console.log('CLIENT_SECRET loaded:', CLIENT_SECRET ? `${CLIENT_SECRET.substring(0, 10)}...` : 'NOT SET');
+    console.log('REDIRECT_URI:', REDIRECT_URI);
+    console.log('All env vars:', Object.keys(process.env).filter(k => k.includes('GOOGLE')));
+    console.log('================================');
 
     this.oauth2Client = new google.auth.OAuth2(
       CLIENT_ID,
