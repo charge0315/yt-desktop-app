@@ -1,4 +1,4 @@
-import { contextBridge, ipcRenderer } from 'electron';
+import { contextBridge, ipcRenderer, shell } from 'electron';
 
 contextBridge.exposeInMainWorld('electronAPI', {
   // Auth APIs
@@ -15,5 +15,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
   
   // Cache APIs
   forceSync: () => ipcRenderer.invoke('cache:forceSync'),
-  clearCache: () => ipcRenderer.invoke('cache:clearCache')
+  clearCache: () => ipcRenderer.invoke('cache:clearCache'),
+  
+  // Shell API
+  openExternal: (url: string) => shell.openExternal(url)
 });

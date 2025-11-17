@@ -2,6 +2,7 @@ import Store from 'electron-store';
 import { google } from 'googleapis';
 import * as http from 'http';
 import * as url from 'url';
+import { shell } from 'electron';
 
 interface AuthTokens {
   access_token: string;
@@ -13,6 +14,7 @@ interface AuthTokens {
 
 export class AuthService {
   private store: Store;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private oauth2Client: any;
   private readonly SCOPES = [
     'https://www.googleapis.com/auth/youtube.readonly',
@@ -50,7 +52,7 @@ export class AuthService {
     return new Promise((resolve, reject) => {
       const server = http.createServer(async (req, res) => {
         try {
-          if (req.url?.indexOf('/oauth2callback') > -1) {
+          if (req.url && req.url.indexOf('/oauth2callback') > -1) {
             const qs = new url.URL(req.url, 'http://localhost:3000').searchParams;
             const code = qs.get('code');
             
@@ -73,7 +75,7 @@ export class AuthService {
         }
       }).listen(3000, () => {
         // Open browser for authentication
-        require('electron').shell.openExternal(authUrl);
+        shell.openExternal(authUrl);
       });
     });
   }
