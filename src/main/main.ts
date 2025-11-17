@@ -125,6 +125,15 @@ ipcMain.handle('youtube:getMusicPlaylists', async () => {
   }
 });
 
+ipcMain.handle('youtube:getShorts', async () => {
+  try {
+    const shorts = await youtubeService.getShorts();
+    return { success: true, data: shorts };
+  } catch (error) {
+    return { success: false, error: (error as Error).message };
+  }
+});
+
 ipcMain.handle('cache:forceSync', async () => {
   try {
     await youtubeService.forceSyncAll();

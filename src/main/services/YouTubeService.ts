@@ -200,6 +200,90 @@ export class YouTubeService {
     return playlists.filter(playlist => playlist.isMusic);
   }
 
+  async getShorts(limit: number = 50): Promise<Video[]> {
+    const cached = await this.cacheService.get('videos', 'shorts');
+    if (cached) {
+      return cached;
+    }
+
+    await this.authService.ensureValidToken();
+
+    const shorts: Video[] = [];
+    const subscriptions = await this.getSubscriptions();
+
+    // Get recent uploads from each channel
+    for (const channel of subscriptions.slice(0, 20)) {
+      try {
+        const response = await this.youtube.search.list({
+          part: ['snippet'],
+          channelId: channel.id,
+          order: 'date',
+          maxResults: 5,
+          type: ['video'],
+          videoDuration: 'short' // Filter for videos under 4 minutes
+        });
+
+        if (response.data.items) {
+          const videoIds = response.data.items
+            .map(item => item.id?.videoId)
+            .filter(id => id) as string[];
+
+          if (videoIds.length > 0) {
+            // Get detailed info to check duration
+            const videoDetails = await this.youtube.videos.list({
+              part: ['snippet', 'contentDetails'],
+              id: videoIds
+            });
+
+            if (videoDetails.data.items) {
+              for (const item of videoDetails.data.items) {
+                const duration = this.parseDuration(item.contentDetails?.duration || '');
+
+                // Shorts are typically 60 seconds or less
+                if (duration > 0 && duration <= 60) {
+                  const video: Video = {
+                    id: item.id || '',
+                    title: item.snippet?.title || '',
+                    description: item.snippet?.description || '',
+                    thumbnail: item.snippet?.thumbnails?.medium?.url || '',
+                    channelId: item.snippet?.channelId || '',
+                    channelTitle: item.snippet?.channelTitle || '',
+                    publishedAt: item.snippet?.publishedAt || '',
+                    categoryId: item.snippet?.categoryId || ''
+                  };
+                  shorts.push(video);
+                }
+              }
+            }
+          }
+        }
+      } catch (error) {
+        console.error(`Failed to get shorts for channel ${channel.id}:`, error);
+      }
+    }
+
+    // Sort by date
+    shorts.sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime());
+
+    const latestShorts = shorts.slice(0, limit);
+
+    await this.cacheService.set('videos', 'shorts', latestShorts, this.CACHE_TTL_MINUTES);
+
+    return latestShorts;
+  }
+
+  private parseDuration(duration: string): number {
+    // Parse ISO 8601 duration format (e.g., PT1M30S = 90 seconds)
+    const match = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
+    if (!match) return 0;
+
+    const hours = parseInt(match[1] || '0', 10);
+    const minutes = parseInt(match[2] || '0', 10);
+    const seconds = parseInt(match[3] || '0', 10);
+
+    return hours * 3600 + minutes * 60 + seconds;
+  }
+
   private async classifyChannels(channels: Channel[]): Promise<void> {
     // Sample videos from each channel to determine if it's music-related
     for (const channel of channels) {

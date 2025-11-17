@@ -12,6 +12,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   getPlaylists: () => ipcRenderer.invoke('youtube:getPlaylists'),
   getArtists: () => ipcRenderer.invoke('youtube:getArtists'),
   getMusicPlaylists: () => ipcRenderer.invoke('youtube:getMusicPlaylists'),
+  getShorts: () => ipcRenderer.invoke('youtube:getShorts'),
   
   // Cache APIs
   forceSync: () => ipcRenderer.invoke('cache:forceSync'),

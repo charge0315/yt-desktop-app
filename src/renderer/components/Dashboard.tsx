@@ -4,12 +4,15 @@ import Subscriptions from './Subscriptions';
 import Artists from './Artists';
 import Playlists from './Playlists';
 import MusicPlaylists from './MusicPlaylists';
+import Shorts from './Shorts';
 import VideoPlayer from './VideoPlayer';
+import ShortsPlayer from './ShortsPlayer';
 
 const Dashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState('home');
   const [syncing, setSyncing] = useState(false);
   const [selectedVideoId, setSelectedVideoId] = useState<string | null>(null);
+  const [selectedShortId, setSelectedShortId] = useState<string | null>(null);
 
   const handleForceSync = async () => {
     setSyncing(true);
@@ -54,6 +57,14 @@ const Dashboard: React.FC = () => {
     setSelectedVideoId(null);
   };
 
+  const handleShortClick = (shortId: string) => {
+    setSelectedShortId(shortId);
+  };
+
+  const handleCloseShortsPlayer = () => {
+    setSelectedShortId(null);
+  };
+
   return (
     <div className="container">
       <div className="section-header" style={{ marginBottom: '24px' }}>
@@ -88,6 +99,12 @@ const Dashboard: React.FC = () => {
           >
             YouTube Musicプレイリスト
           </div>
+          <div
+            className={`tab ${activeTab === 'shorts' ? 'active' : ''}`}
+            onClick={() => setActiveTab('shorts')}
+          >
+            ショート
+          </div>
         </div>
         <div className="header-actions">
           <button
@@ -106,6 +123,7 @@ const Dashboard: React.FC = () => {
       {activeTab === 'home' && (
         <>
           <LatestVideos onVideoClick={handleVideoClick} />
+          <Shorts onShortClick={handleShortClick} limit={12} />
           <Subscriptions limit={12} />
           <Artists limit={12} />
           <Playlists limit={12} />
@@ -116,9 +134,13 @@ const Dashboard: React.FC = () => {
       {activeTab === 'artists' && <Artists />}
       {activeTab === 'playlists' && <Playlists />}
       {activeTab === 'music-playlists' && <MusicPlaylists />}
+      {activeTab === 'shorts' && <Shorts onShortClick={handleShortClick} />}
 
       {selectedVideoId && (
         <VideoPlayer videoId={selectedVideoId} onClose={handleClosePlayer} />
+      )}
+      {selectedShortId && (
+        <ShortsPlayer shortId={selectedShortId} onClose={handleCloseShortsPlayer} />
       )}
     </div>
   );
