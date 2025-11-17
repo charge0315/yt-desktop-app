@@ -21,6 +21,7 @@ declare global {
 const App: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [syncing, setSyncing] = useState(false);
 
   useEffect(() => {
     checkAuthStatus();
@@ -63,6 +64,40 @@ const App: React.FC = () => {
     }
   };
 
+  const handleForceSync = async () => {
+    setSyncing(true);
+    try {
+      const result = await window.electronAPI.forceSync();
+      if (result.success) {
+        alert('🔄 同期が完了しました');
+        window.location.reload();
+      } else {
+        alert(`❌ 同期に失敗しました: ${result.error}`);
+      }
+    } catch (error) {
+      alert('❌ 同期エラーが発生しました');
+      console.error('Sync error:', error);
+    } finally {
+      setSyncing(false);
+    }
+  };
+
+  const handleClearCache = async () => {
+    if (!confirm('🗑️ キャッシュをクリアしますか？')) return;
+
+    try {
+      const result = await window.electronAPI.clearCache();
+      if (result.success) {
+        alert('✅ キャッシュをクリアしました');
+      } else {
+        alert(`❌ キャッシュのクリアに失敗しました: ${result.error}`);
+      }
+    } catch (error) {
+      alert('❌ エラーが発生しました');
+      console.error('Clear cache error:', error);
+    }
+  };
+
   if (loading) {
     return (
       <div className="app">
@@ -97,8 +132,18 @@ const App: React.FC = () => {
       <header className="header">
         <h1>YouTube Desktop App</h1>
         <div className="header-actions">
-          <button className="btn btn-secondary" onClick={handleLogout}>
-            ログアウト
+          <button
+            className="btn btn-secondary"
+            onClick={handleForceSync}
+            disabled={syncing}
+          >
+            {syncing ? '🔄 同期中...' : '🔄 強制同期'}
+          </button>
+          <button className="btn btn-secondary" onClick={handleClearCache}>
+            🗑️ キャッシュクリア
+          </button>
+          <button className="btn btn-danger" onClick={handleLogout}>
+            🚪 ログアウト
           </button>
         </div>
       </header>
