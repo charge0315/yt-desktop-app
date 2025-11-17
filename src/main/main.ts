@@ -1,8 +1,12 @@
 import { app, BrowserWindow, ipcMain } from 'electron';
 import * as path from 'path';
+import { config } from 'dotenv';
 import { AuthService } from './services/AuthService';
 import { YouTubeService } from './services/YouTubeService';
 import { CacheService } from './services/CacheService';
+
+// Load environment variables from .env file
+config();
 
 let mainWindow: BrowserWindow | null = null;
 let authService: AuthService;
