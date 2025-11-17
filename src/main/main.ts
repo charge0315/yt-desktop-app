@@ -1,8 +1,20 @@
 import { app, BrowserWindow, ipcMain } from 'electron';
 import * as path from 'path';
+import { config } from 'dotenv';
 import { AuthService } from './services/AuthService';
 import { YouTubeService } from './services/YouTubeService';
 import { CacheService } from './services/CacheService';
+
+// Load environment variables from .env file
+// Use path.join to ensure .env is found relative to project root
+const envPath = path.join(__dirname, '../../.env');
+console.log('Loading .env from:', envPath);
+const result = config({ path: envPath });
+if (result.error) {
+  console.error('Error loading .env file:', result.error);
+} else {
+  console.log('.env file loaded successfully');
+}
 
 let mainWindow: BrowserWindow | null = null;
 let authService: AuthService;
