@@ -11,7 +11,11 @@ interface Video {
   categoryId: string;
 }
 
-const LatestVideos: React.FC = () => {
+interface LatestVideosProps {
+  onVideoClick?: (videoId: string) => void;
+}
+
+const LatestVideos: React.FC<LatestVideosProps> = ({ onVideoClick }) => {
   const [videos, setVideos] = useState<Video[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -89,7 +93,11 @@ const LatestVideos: React.FC = () => {
       <h2 className="section-title">最新情報</h2>
       <div className="grid grid-3">
         {videos.map((video) => (
-          <div key={video.id} className="card">
+          <div
+            key={video.id}
+            className="card"
+            onClick={() => onVideoClick?.(video.id)}
+          >
             <img
               src={video.thumbnail}
               alt={video.title}

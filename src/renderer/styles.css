@@ -244,3 +244,56 @@ body {
 .tab.active {
   border-color: #3ea6ff;
 }
+
+/* Video Player Modal */
+.video-player-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.video-player-container {
+  position: relative;
+  width: 90%;
+  max-width: 1280px;
+  aspect-ratio: 16/9;
+  background-color: #000;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+.video-player-close {
+  position: absolute;
+  top: -40px;
+  right: 0;
+  background: none;
+  border: none;
+  color: #f1f1f1;
+  font-size: 32px;
+  cursor: pointer;
+  padding: 8px;
+  z-index: 1001;
+  transition: color 0.2s;
+}
+
+.video-player-close:hover {
+  color: #3ea6ff;
+}

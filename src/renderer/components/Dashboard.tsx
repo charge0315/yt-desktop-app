@@ -4,10 +4,12 @@ import Subscriptions from './Subscriptions';
 import Artists from './Artists';
 import Playlists from './Playlists';
 import MusicPlaylists from './MusicPlaylists';
+import VideoPlayer from './VideoPlayer';
 
 const Dashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState('home');
   const [syncing, setSyncing] = useState(false);
+  const [selectedVideoId, setSelectedVideoId] = useState<string | null>(null);
 
   const handleForceSync = async () => {
     setSyncing(true);
@@ -42,6 +44,14 @@ const Dashboard: React.FC = () => {
       alert('エラーが発生しました');
       console.error('Clear cache error:', error);
     }
+  };
+
+  const handleVideoClick = (videoId: string) => {
+    setSelectedVideoId(videoId);
+  };
+
+  const handleClosePlayer = () => {
+    setSelectedVideoId(null);
   };
 
   return (
@@ -95,7 +105,7 @@ const Dashboard: React.FC = () => {
 
       {activeTab === 'home' && (
         <>
-          <LatestVideos />
+          <LatestVideos onVideoClick={handleVideoClick} />
           <Subscriptions limit={12} />
           <Artists limit={12} />
           <Playlists limit={12} />
@@ -106,6 +116,10 @@ const Dashboard: React.FC = () => {
       {activeTab === 'artists' && <Artists />}
       {activeTab === 'playlists' && <Playlists />}
       {activeTab === 'music-playlists' && <MusicPlaylists />}
+
+      {selectedVideoId && (
+        <VideoPlayer videoId={selectedVideoId} onClose={handleClosePlayer} />
+      )}
     </div>
   );
 };
